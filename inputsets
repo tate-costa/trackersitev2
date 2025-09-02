@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Set Your Skills</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 2rem;
+      background-color: #f9f9fb;
+      color: #333;
+    }
+    h2 {
+      color: #0077cc;
+    }
+    .event-block {
+      margin-bottom: 2rem;
+      border: 1px solid #ccc;
+      padding: 1rem;
+      border-radius: 8px;
+    }
+    .event-block h3 {
+      margin-top: 0;
+    }
+    .skill-set {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+    input[type="text"], input[type="number"] {
+      padding: 0.5rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005fa3;
+    }
+  </style>
+</head>
+<body>
+  <h2>Set Your Skills for Each Event</h2>
+
+  <div id="eventsContainer"></div>
+
+  <button onclick="saveSkillSets()">Save & Go to Dashboard</button>
+
+  <script>
+    const events = ["FX", "PH", "SR", "VT", "PB", "HB"];
+    const container = document.getElementById("eventsContainer");
+
+    events.forEach(event => {
+      const block = document.createElement("div");
+      block.className = "event-block";
+      block.dataset.event = event;
+
+      block.innerHTML = `<h3>${event}</h3><div class="skill-set"></div>`;
+      const skillSet = block.querySelector(".skill-set");
+
+      for (let i = 0; i < 8; i++) {
+        const skillInput = document.createElement("input");
+        skillInput.type = "text";
+        skillInput.placeholder = `Skill ${i + 1}`;
+        skillInput.className = "skill-name";
+
+        const valueInput = document.createElement("input");
+        valueInput.type = "number";
+        valueInput.placeholder = `Value ${i + 1}`;
+        valueInput.className = "skill-value";
+
+        skillSet.appendChild(skillInput);
+        skillSet.appendChild(valueInput);
+      }
+
+      container.appendChild(block);
+    });
+
+    function saveSkillSets() {
+      const activeUserId = localStorage.getItem("activeUserId");
+      if (!activeUserId) {
+        alert("No user selected.");
+        return;
+      }
+
+      const skillData = {};
+
+      document.querySelectorAll(".event-block").forEach(block => {
+        const event = block.dataset.event;
+        const names = block.querySelectorAll(".skill-name");
+        const values = block.querySelectorAll(".skill-value");
+
+        skillData[event] = [];
+
+        for (let i = 0; i < names.length; i++) {
+          const name = names[i].value.trim();
+          const value = parseFloat(values[i].value);
+          if (name && !isNaN(value)) {
+            skillData[event].push({ skill: name, value });
+          }
+        }
+      });
+
+      localStorage.setItem(`skillSets_${activeUserId}`, JSON.stringify(skillData));
+      window.location.href = "dashboard.html";
+    }
+  </script>
+</body>
+</html>
