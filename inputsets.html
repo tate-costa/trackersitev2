@@ -1,6 +1,147 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBEvPhZMwiIvrNp3aGJYwJaRxIbUsFAexA",
+    authDomain: "extracker2-6ee45.firebaseapp.com",
+    projectId: "extracker2-6ee45",
+    storageBucket: "extracker2-6ee45.firebasestorage.app",
+    messagingSenderId: "353228863394",
+    appId: "1:353228863394:web:56640ef8429be3dbd564fb",
+    measurementId: "G-BB724PSCVT"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const activeUserId = localStorage.getItem("activeUserId");
+  const container = document.getElementById("eventsContainer");
+  const events = ["FX", "PH", "SR", "PB", "HB", "VT"];
+  const skillBlocks = {};
+
+  // Step 2: Build UI
+  events.forEach(event => {
+    const block = document.createElement("div");
+    block.className = "event-block";
+    block.dataset.event = event;
+
+    const header = document.createElement("div");
+    header.className = "event-header";
+    header.textContent = event;
+    block.appendChild(header);
+
+    const skillSet = document.createElement("div");
+    skillSet.className = "skill-set";
+    block.appendChild(skillSet);
+
+    header.addEventListener("click", () => {
+      skillSet.style.display = skillSet.style.display === "grid" ? "none" : "grid";
+      skillSet.style.gridTemplateColumns = "1fr 1fr";
+    });
+
+    if (event === "VT") {
+      ["VT 1", "VT 2"].forEach(label => {
+        skillSet.appendChild(createSkillRow(label));
+      });
+    } else {
+      for (let i = 0; i < 7; i++) {
+        skillSet.appendChild(createSkillRow(`Skill ${i + 1}`));
+      }
+      skillSet.appendChild(createSkillRow("Dismount"));
+      skillSet.appendChild(createSkillRow("Upgrade 1"));
+      skillSet.appendChild(createSkillRow("Upgrade 2"));
+    }
+
+    container.appendChild(block);
+    skillBlocks[event] = skillSet;
+  });
+
+  function createSkillRow(label) {
+    const skillInput = document.createElement("input");
+    skillInput.type = "text";
+    skillInput.placeholder = label;
+    skillInput.className = "skill-name";
+
+    const valueInput = document.createElement("input");
+    valueInput.type = "number";
+    valueInput.placeholder = `Value for ${label}`;
+    valueInput.className = "skill-value";
+
+    const wrapper = document.createElement("div");
+    wrapper.appendChild(skillInput);
+    wrapper.appendChild(valueInput);
+    return wrapper;
+  }
+
+  // Step 3: Load saved data from Firebase
+  async function preloadSkills() {
+    if (!activeUserId) return;
+
+    try {
+      const docRef = doc(db, "inputSets", activeUserId);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const savedSkills = docSnap.data();
+        Object.entries(savedSkills).forEach(([event, skills]) => {
+          const skillSet = skillBlocks[event];
+          if (!skillSet) return;
+
+          const skillInputs = skillSet.querySelectorAll(".skill-name");
+          const valueInputs = skillSet.querySelectorAll(".skill-value");
+
+          skills.forEach((entry, i) => {
+            if (skillInputs[i]) skillInputs[i].value = entry.skill;
+            if (valueInputs[i]) valueInputs[i].value = entry.value;
+          });
+        });
+      }
+    } catch (error) {
+      console.error("Error loading skills:", error);
+    }
+  }
+
+  preloadSkills();
+
+  // Step 4: Save to Firebase
+  window.saveSkillSets = async function () {
+    if (!activeUserId) {
+      alert("No user selected.");
+      return;
+    }
+
+    const skillData = {};
+
+    document.querySelectorAll(".event-block").forEach(block => {
+      const event = block.dataset.event;
+      const names = block.querySelectorAll(".skill-name");
+      const values = block.querySelectorAll(".skill-value");
+
+      skillData[event] = [];
+
+      for (let i = 0; i < names.length; i++) {
+        const name = names[i].value.trim();
+        const value = parseFloat(values[i].value);
+        if (name && !isNaN(value)) {
+          skillData[event].push({ skill: name, value });
+        }
+      }
+    });
+
+    try {
+      await setDoc(doc(db, "inputSets", activeUserId), skillData);
+      window.location.href = "dashboardv2.html";
+    } catch (error) {
+      console.error("Error saving skill sets:", error);
+      alert("Failed to save. Please try again.");
+    }
+  };
+</script>
+
   <meta charset="UTF-8" />
   <title>Set Your Skills</title>
   <style>
@@ -62,122 +203,6 @@
   <div id="eventsContainer"></div>
   <button onclick="saveSkillSets()">Save & Go to Dashboard</button>
 
-  <script>
-    const events = ["FX", "PH", "SR", "PB", "HB", "VT"];
-    const container = document.getElementById("eventsContainer");
-
-    events.forEach(event => {
-      const block = document.createElement("div");
-      block.className = "event-block";
-      block.dataset.event = event;
-
-      const header = document.createElement("div");
-      header.className = "event-header";
-      header.textContent = event;
-      block.appendChild(header);
-
-      const skillSet = document.createElement("div");
-      skillSet.className = "skill-set";
-      block.appendChild(skillSet);
-
-      header.addEventListener("click", () => {
-        skillSet.style.display = skillSet.style.display === "grid" ? "none" : "grid";
-        skillSet.style.display === "grid" && (skillSet.style.gridTemplateColumns = "1fr 1fr");
-      });
-
-      if (event === "VT") {
-        ["VT 1", "VT 2"].forEach(label => {
-          const skillInput = document.createElement("input");
-          skillInput.type = "text";
-          skillInput.placeholder = label;
-          skillInput.className = "skill-name";
-
-          const valueInput = document.createElement("input");
-          valueInput.type = "number";
-          valueInput.placeholder = `Value for ${label}`;
-          valueInput.className = "skill-value";
-
-          skillSet.appendChild(skillInput);
-          skillSet.appendChild(valueInput);
-        });
-      } else {
-        for (let i = 0; i < 7; i++) {
-          const skillInput = document.createElement("input");
-          skillInput.type = "text";
-          skillInput.placeholder = `Skill ${i + 1}`;
-          skillInput.className = "skill-name";
-
-          const valueInput = document.createElement("input");
-          valueInput.type = "number";
-          valueInput.placeholder = `Value ${i + 1}`;
-          valueInput.className = "skill-value";
-
-          skillSet.appendChild(skillInput);
-          skillSet.appendChild(valueInput);
-        }
-
-        // Dismount
-        const dismountInput = document.createElement("input");
-        dismountInput.type = "text";
-        dismountInput.placeholder = "Dismount";
-        dismountInput.className = "skill-name";
-
-        const dismountValue = document.createElement("input");
-        dismountValue.type = "number";
-        dismountValue.placeholder = "Value for Dismount";
-        dismountValue.className = "skill-value";
-
-        skillSet.appendChild(dismountInput);
-        skillSet.appendChild(dismountValue);
-
-        // Upgrades
-        ["Upgrade 1", "Upgrade 2"].forEach(label => {
-          const upgradeInput = document.createElement("input");
-          upgradeInput.type = "text";
-          upgradeInput.placeholder = label;
-          upgradeInput.className = "skill-name";
-
-          const upgradeValue = document.createElement("input");
-          upgradeValue.type = "number";
-          upgradeValue.placeholder = `Value for ${label}`;
-          upgradeValue.className = "skill-value";
-
-          skillSet.appendChild(upgradeInput);
-          skillSet.appendChild(upgradeValue);
-        });
-      }
-
-      container.appendChild(block);
-    });
-
-    function saveSkillSets() {
-      const activeUserId = localStorage.getItem("activeUserId");
-      if (!activeUserId) {
-        alert("No user selected.");
-        return;
-      }
-
-      const skillData = {};
-
-      document.querySelectorAll(".event-block").forEach(block => {
-        const event = block.dataset.event;
-        const names = block.querySelectorAll(".skill-name");
-        const values = block.querySelectorAll(".skill-value");
-
-        skillData[event] = [];
-
-        for (let i = 0; i < names.length; i++) {
-          const name = names[i].value.trim();
-          const value = parseFloat(values[i].value);
-          if (name && !isNaN(value)) {
-            skillData[event].push({ skill: name, value });
-          }
-        }
-      });
-
-      localStorage.setItem(`skillSets_${activeUserId}`, JSON.stringify(skillData));
-      window.location.href = "dashboardv2.html";
-    }
-  </script>
+  
 </body>
 </html>
