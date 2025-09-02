@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard V2</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 2rem;
+      background-color: #f9f9fb;
+      color: #333;
+    }
+    h2 {
+      color: #0077cc;
+    }
+    select {
+      padding: 0.5rem;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.75rem;
+      text-align: left;
+    }
+    th {
+      background-color: #eee;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 0.4rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005fa3;
+    }
+  </style>
+</head>
+<body>
+  <h2>Dashboard V2</h2>
+
+  <label for="eventSelector">Select Event:</label>
+  <select id="eventSelector">
+    <option value="">-- Select Event --</option>
+    <option value="FX">FX</option>
+    <option value="PH">PH</option>
+    <option value="SR">SR</option>
+    <option value="VT">VT</option>
+    <option value="PB">PB</option>
+    <option value="HB">HB</option>
+  </select>
+
+  <table id="skillTable">
+    <thead>
+      <tr>
+        <th>Skill</th>
+        <th>Value</th>
+        <th>Deduction</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <button onclick="submitRoutine()">Submit Routine</button>
+
+  <script>
+    const activeUserId = localStorage.getItem("activeUserId");
+    const savedSkills = JSON.parse(localStorage.getItem(`skillSets_${activeUserId}`) || "{}");
+
+    const eventSelector = document.getElementById("eventSelector");
+    const tbody = document.querySelector("#skillTable tbody");
+
+    eventSelector.addEventListener("change", function () {
+      const selectedEvent = this.value;
+      tbody.innerHTML = "";
+
+      if (!selectedEvent || !savedSkills[selectedEvent]) return;
+
+      savedSkills[selectedEvent].forEach(({ skill, value }) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${skill}</td>
+          <td><input type="number" value="${value}" disabled /></td>
+          <td><input type="number" placeholder="Deduction" class="deduction-input" /></td>
+        `;
+        tbody.appendChild(row);
+      });
+    });
+
+    function submitRoutine() {
+      const selectedEvent = eventSelector.value;
+      if (!selectedEvent) {
+        alert("Please select an event.");
+        return;
+      }
+
+      const rows = tbody.querySelectorAll("tr");
+      const routineData = [];
+
+      rows.forEach(row => {
+        const skill = row.cells[0].textContent;
+        const value = parseFloat(row.cells[1].querySelector("input").value);
+        const deduction = parseFloat(row.cells[2].querySelector("input").value) || 0;
+
+        routineData.push({ skill, value, deduction });
+      });
+
+      console.log(`Routine submitted for ${selectedEvent}:`, routineData);
+
+      alert(`Routine for ${selectedEvent} submitted!`);
+      // You can later send this to Firebase or export it
+    }
+  </script>
+</body>
+</html>
