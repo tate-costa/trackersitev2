@@ -108,87 +108,78 @@
   <button onclick="goToDashboard()">Go to Dashboard</button>
 </div>
  <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBEvPhZMwiIvrNp3aGJYwJaRxIbUsFAexA",
-    authDomain: "extracker2-6ee45.firebaseapp.com",
-    projectId: "extracker2-6ee45",
-    storageBucket: "extracker2-6ee45.firebasestorage.app",
-    messagingSenderId: "353228863394",
-    appId: "1:353228863394:web:56640ef8429be3dbd564fb",
-    measurementId: "G-BB724PSCVT"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyBEvPhZMwiIvrNp3aGJYwJaRxIbUsFAexA",
+  authDomain: "extracker2-6ee45.firebaseapp.com",
+  projectId: "extracker2-6ee45",
+  storageBucket: "extracker2-6ee45.firebasestorage.app",
+  messagingSenderId: "353228863394",
+  appId: "1:353228863394:web:56640ef8429be3dbd564fb",
+  measurementId: "G-BB724PSCVT"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  window.startSession = async function () {
-    const selectedUser = document.getElementById("userSelector").value;
+  
+
+ window.addEventListener("DOMContentLoaded", () => {
+  const selector = document.getElementById("userSelector");
+  const editBtn = document.querySelector("button[onclick='goToInputSets()']");
+  const dashBtn = document.querySelector("button[onclick='goToDashboard()']");
+
+  selector.addEventListener("change", () => {
+    const hasUser = selector.value !== "";
+    editBtn.disabled = !hasUser;
+    dashBtn.disabled = !hasUser;
+  });
+
+  // Disable buttons on initial load
+  editBtn.disabled = true;
+  dashBtn.disabled = true;
+
+  window.getSelectedUser = function () {
+    const selectedUser = selector.value;
     if (!selectedUser) {
-      alert("Please select your name.");
-      return;
+      alert("Please select your name first.");
+      return null;
     }
-
     localStorage.setItem("activeUserId", selectedUser);
+    return selectedUser;
+  };
 
-    try {
-      const docRef = doc(db, "inputSets", selectedUser);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        localStorage.setItem("skillSets_" + selectedUser, JSON.stringify(docSnap.data()));
-      } else {
-        console.log("No input sets found for this user.");
-      }
-
-      // You can also fetch previous submissions here if stored separately
-      // const submissionRef = doc(db, "submissions", selectedUser);
-      // const submissionSnap = await getDoc(submissionRef);
-      // if (submissionSnap.exists()) {
-      //   localStorage.setItem("submissions_" + selectedUser, JSON.stringify(submissionSnap.data()));
-      // }
-
+  window.goToInputSets = async function () {
+    const user = getSelectedUser();
+    if (user) {
+      await preloadUserData(user);
       window.location.href = "inputsets.html";
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-      alert("Failed to load user data.");
     }
   };
-    
-    function getSelectedUser() {
-  const selectedUser = document.getElementById("userSelector").value;
-  if (!selectedUser) {
-    alert("Please select your name first.");
-    return null;
-  }
-  localStorage.setItem("activeUserId", selectedUser);
-  return selectedUser;
-}
 
-function goToInputSets() {
-  const user = getSelectedUser();
-  if (user) {
-    window.location.href = "inputsets.html";
-  }
-}
+  window.goToDashboard = async function () {
+    const user = getSelectedUser();
+    if (user) {
+      await preloadUserData(user);
+      window.location.href = "dashboard.html";
+    }
+  };
 
-function goToDashboard() {
-  const user = getSelectedUser();
-  if (user) {
-    window.location.href = "dashboard.html";
+  async function preloadUserData(userId) {
+    try {
+      const docRef = doc(db, "inputSets", userId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        localStorage.setItem("skillSets_" + userId, JSON.stringify(docSnap.data()));
+      }
+    } catch (error) {
+      console.error("Error loading user data:", error);
+    }
   }
-}
-    const selector = document.getElementById("userSelector");
-const editBtn = document.querySelector("button[onclick='goToInputSets()']");
-const dashBtn = document.querySelector("button[onclick='goToDashboard()']");
-
-selector.addEventListener("change", () => {
-  const hasUser = selector.value !== "";
-  editBtn.disabled = !hasUser;
-  dashBtn.disabled = !hasUser;
 });
+
 
 
 </script>
