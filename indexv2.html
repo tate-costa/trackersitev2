@@ -50,6 +50,41 @@
       alert("Failed to load user data.");
     }
   };
+    
+    function getSelectedUser() {
+  const selectedUser = document.getElementById("userSelector").value;
+  if (!selectedUser) {
+    alert("Please select your name first.");
+    return null;
+  }
+  localStorage.setItem("activeUserId", selectedUser);
+  return selectedUser;
+}
+
+function goToInputSets() {
+  const user = getSelectedUser();
+  if (user) {
+    window.location.href = "inputsets.html";
+  }
+}
+
+function goToDashboard() {
+  const user = getSelectedUser();
+  if (user) {
+    window.location.href = "dashboard.html";
+  }
+}
+    const selector = document.getElementById("userSelector");
+const editBtn = document.querySelector("button[onclick='goToInputSets()']");
+const dashBtn = document.querySelector("button[onclick='goToDashboard()']");
+
+selector.addEventListener("change", () => {
+  const hasUser = selector.value !== "";
+  editBtn.disabled = !hasUser;
+  dashBtn.disabled = !hasUser;
+});
+
+
 </script>
 
   <meta charset="UTF-8" />
@@ -152,10 +187,10 @@
 
 <p>This is your landing hub. From here, you can navigate to your dashboard, manage events, or explore new features.</p>
 
-<nav>
-  <a href="dashboard.html" id="dashboardLink" style="display:none;">Go to Dashboard</a>
-  <a href="signup.html">Sign Up / Log In</a>
-</nav>
+<div style="margin-top: 1rem;">
+  <button onclick="goToInputSets()">Edit My Routines</button>
+  <button onclick="goToDashboard()">Go to Dashboard</button>
+</div>
 
 </body>
   <script>
@@ -176,6 +211,7 @@
     welcomeEl.textContent = `🤸‍♂️ Welcome, ${userSelector.options[userSelector.selectedIndex].text}`;
     window.location.href = "inputsets.html";
   });
+    
 </script>
 
 </html>
