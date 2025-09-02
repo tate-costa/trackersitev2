@@ -1,6 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBEvPhZMwiIvrNp3aGJYwJaRxIbUsFAexA",
+    authDomain: "extracker2-6ee45.firebaseapp.com",
+    projectId: "extracker2-6ee45",
+    storageBucket: "extracker2-6ee45.firebasestorage.app",
+    messagingSenderId: "353228863394",
+    appId: "1:353228863394:web:56640ef8429be3dbd564fb",
+    measurementId: "G-BB724PSCVT"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  window.startSession = async function () {
+    const selectedUser = document.getElementById("userSelector").value;
+    if (!selectedUser) {
+      alert("Please select your name.");
+      return;
+    }
+
+    localStorage.setItem("activeUserId", selectedUser);
+
+    try {
+      const docRef = doc(db, "inputSets", selectedUser);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        localStorage.setItem("skillSets_" + selectedUser, JSON.stringify(docSnap.data()));
+      } else {
+        console.log("No input sets found for this user.");
+      }
+
+      // You can also fetch previous submissions here if stored separately
+      // const submissionRef = doc(db, "submissions", selectedUser);
+      // const submissionSnap = await getDoc(submissionRef);
+      // if (submissionSnap.exists()) {
+      //   localStorage.setItem("submissions_" + selectedUser, JSON.stringify(submissionSnap.data()));
+      // }
+
+      window.location.href = "inputsets.html";
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      alert("Failed to load user data.");
+    }
+  };
+</script>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EX Tracker - Home</title>
