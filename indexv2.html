@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EX Tracker - Home</title>
+  <script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-auth-compat.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f9f9fb;
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #333;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: #0077cc;
+    }
+
+    p {
+      max-width: 600px;
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 1.1rem;
+    }
+
+    #loginBtn {
+      padding: 10px 20px;
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-bottom: 1rem;
+    }
+
+    #loginBtn:hover {
+      background-color: #005fa3;
+    }
+
+    nav {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    nav a {
+      text-decoration: none;
+      padding: 10px 16px;
+      background-color: #eee;
+      border-radius: 6px;
+      font-size: 1rem;
+      color: #333;
+      transition: background-color 0.2s ease;
+    }
+
+    nav a:hover {
+      background-color: #ddd;
+    }
+
+    #dashboardLink {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+<h1 id="welcomeUser">🤸‍♂️ Welcome to EX Tracker</h1>
+
+<label for="userSelector">Select Your Name:</label>
+<select id="userSelector">
+  <option value="">-- Choose User --</option>
+  <option value="sam_kaplan">Sam Kaplan</option>
+  <option value="tate_costa">Tate Costa</option>
+  <option value="samuel_phillips">Samuel Phillips 3</option>
+  <option value="logan_myers">Logan Myers</option>
+  <option value="ryan_van">Ryan Van</option>
+  <option value="connor_micklos">Connor Micklos</option>
+  <option value="vahe_petrosyan">Vahe Petrosyan</option>
+  <option value="preston_ngai">Preston Ngai</option>
+  <option value="dylan_sheppard">Dylan Sheppard</option>
+  <option value="garrett_schooley">Garrett Schooley</option>
+  <option value="brandon_dang">Brandon Dang</option>
+  <option value="ian_sandoval">Ian Sandoval</option>
+  <option value="jax_washburn">Jax Washburn</option>
+  <option value="nathan_whitaker">Nathan Whitaker</option>
+  <option value="matthew_ngyuen">Matthew Ngyuen</option>
+  <option value="hasan_ayudogu">Hasan Ayudogu</option>
+  <option value="gavin_doherty">Gavin Doherty</option>
+  <option value="alex_karadzov">Alex Karadzov</option>
+</select>
+
+<button id="enterBtn">Enter</button>
+
+<p>This is your landing hub. From here, you can navigate to your dashboard, manage events, or explore new features.</p>
+
+<nav>
+  <a href="dashboard.html" id="dashboardLink" style="display:none;">Go to Dashboard</a>
+  <a href="signup.html">Sign Up / Log In</a>
+</nav>
+
+</body>
+  <script>
+  const welcomeEl = document.getElementById("welcomeUser");
+  const userSelector = document.getElementById("userSelector");
+  const enterBtn = document.getElementById("enterBtn");
+  const dashboardLink = document.getElementById("dashboardLink");
+
+  enterBtn.addEventListener("click", () => {
+    const selectedUser = userSelector.value;
+    if (!selectedUser) {
+      alert("Please select your name.");
+      return;
+    }
+
+    localStorage.setItem("activeUserId", selectedUser);
+    dashboardLink.style.display = "inline-block";
+    welcomeEl.textContent = `🤸‍♂️ Welcome, ${userSelector.options[userSelector.selectedIndex].text}`;
+    window.location.href = "dashboard.html";
+  });
+</script>
+
+</html>
