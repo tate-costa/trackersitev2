@@ -33,10 +33,28 @@
     header.className = "event-header";
     header.textContent = event;
     block.appendChild(header);
+    const skipToggle = document.createElement("label");
+skipToggle.style.display = "block";
+skipToggle.style.margin = "0.5rem 1rem";
+skipToggle.innerHTML = `
+  <input type="checkbox" class="skip-event" />
+  I don’t do this event
+`;
+block.appendChild(skipToggle);
+
 
     const skillSet = document.createElement("div");
     skillSet.className = "skill-set";
     block.appendChild(skillSet);
+
+    const checkbox = skipToggle.querySelector("input");
+checkbox.addEventListener("change", () => {
+  const disabled = checkbox.checked;
+  skillSet.querySelectorAll("input").forEach(input => {
+    input.disabled = disabled;
+  });
+});
+
 
     header.addEventListener("click", () => {
       skillSet.style.display = skillSet.style.display === "grid" ? "none" : "grid";
@@ -116,21 +134,25 @@
 
     const skillData = {};
 
-    document.querySelectorAll(".event-block").forEach(block => {
-      const event = block.dataset.event;
-      const names = block.querySelectorAll(".skill-name");
-      const values = block.querySelectorAll(".skill-value");
+document.querySelectorAll(".event-block").forEach(block => {
+  const event = block.dataset.event;
+  const skip = block.querySelector(".skip-event")?.checked;
+  if (skip) return; // ✅ Skip saving this event
 
-      skillData[event] = [];
+  const names = block.querySelectorAll(".skill-name");
+  const values = block.querySelectorAll(".skill-value");
 
-      for (let i = 0; i < names.length; i++) {
-        const name = names[i].value.trim();
-        const value = parseFloat(values[i].value);
-        if (name && !isNaN(value)) {
-          skillData[event].push({ skill: name, value });
-        }
-      }
-    });
+  skillData[event] = [];
+
+  for (let i = 0; i < names.length; i++) {
+    const name = names[i].value.trim();
+    const value = parseFloat(values[i].value);
+    if (name && !isNaN(value)) {
+      skillData[event].push({ skill: name, value });
+    }
+  }
+});
+
 
     try {
       await setDoc(doc(db, "inputSets", activeUserId), skillData);
