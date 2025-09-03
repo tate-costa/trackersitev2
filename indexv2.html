@@ -147,21 +147,20 @@
         }
       }
 
-      window.goToInputSets = async function () {
-        const user = getSelectedUser();
-        if (user) {
-          await preloadUserData(user);
-          window.location.href = "inputsets.html";
-        }
-      };
+window.goToInputSets = function () {
+  const user = getSelectedUser();
+  if (user) {
+    window.location.href = "inputsets.html";
+  }
+};
 
-      window.goToDashboard = async function () {
-        const user = getSelectedUser();
-        if (user) {
-          await preloadUserData(user);
-          window.location.href = "dashboard.html";
-        }
-      };
+window.goToDashboard = function () {
+  const user = getSelectedUser();
+  if (user) {
+    window.location.href = "dashboardv2.html";
+  }
+};
+
     });
   </script>
 </body>
