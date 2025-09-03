@@ -19,6 +19,29 @@
   const db = getFirestore(app);
 
   const activeUserId = localStorage.getItem("activeUserId");
+if (!activeUserId) {
+  alert("No user selected.");
+  window.location.href = "indexv2.html";
+}
+
+let savedSkills = {};
+
+async function loadSkills() {
+  try {
+    const docRef = doc(db, "inputSets", activeUserId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      savedSkills = docSnap.data();
+    } else {
+      alert("No skill sets found for this user.");
+    }
+  } catch (error) {
+    console.error("Error loading skills:", error);
+  }
+}
+
+await loadSkills(); // then render when event is selected
+
   const container = document.getElementById("eventsContainer");
   const events = ["FX", "PH", "SR", "PB", "HB", "VT"];
   const skillBlocks = {};
@@ -77,6 +100,36 @@ checkbox.addEventListener("change", () => {
     container.appendChild(block);
     skillBlocks[event] = skillSet;
   });
+
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+const db = getFirestore();
+
+async function preloadSkills() {
+  try {
+    const docRef = doc(db, "inputSets", activeUserId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const savedSkills = docSnap.data();
+      Object.entries(savedSkills).forEach(([event, skills]) => {
+        const skillSet = skillBlocks[event];
+        if (!skillSet) return;
+
+        const skillInputs = skillSet.querySelectorAll(".skill-name");
+        const valueInputs = skillSet.querySelectorAll(".skill-value");
+
+        skills.forEach((entry, i) => {
+          if (skillInputs[i]) skillInputs[i].value = entry.skill;
+          if (valueInputs[i]) valueInputs[i].value = entry.value;
+        });
+      });
+    }
+  } catch (error) {
+    console.error("Error loading skills:", error);
+  }
+}
+
+preloadSkills();
+
 
   function createSkillRow(label) {
     const skillInput = document.createElement("input");
