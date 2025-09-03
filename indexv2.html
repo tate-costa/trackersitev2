@@ -1,13 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- 
-
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EX Tracker - Home</title>
-  <script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-auth-compat.js"></script>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -26,14 +22,13 @@
       color: #0077cc;
     }
 
-    p {
-      max-width: 600px;
-      text-align: center;
-      margin-bottom: 2rem;
-      font-size: 1.1rem;
+    select {
+      padding: 0.5rem;
+      font-size: 1rem;
+      margin-bottom: 1rem;
     }
 
-    #loginBtn {
+    button {
       padding: 10px 20px;
       background-color: #0077cc;
       color: white;
@@ -41,149 +36,133 @@
       border-radius: 6px;
       font-size: 1rem;
       cursor: pointer;
-      margin-bottom: 1rem;
+      margin: 0.5rem;
     }
 
-    #loginBtn:hover {
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    button:hover:not(:disabled) {
       background-color: #005fa3;
     }
 
-    nav {
-      display: flex;
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-
-    nav a {
-      text-decoration: none;
-      padding: 10px 16px;
-      background-color: #eee;
-      border-radius: 6px;
-      font-size: 1rem;
-      color: #333;
-      transition: background-color 0.2s ease;
-    }
-
-    nav a:hover {
-      background-color: #ddd;
-    }
-
-    #dashboardLink {
-      display: none;
+    p {
+      max-width: 600px;
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 1.1rem;
     }
   </style>
 </head>
 <body>
-<h1 id="welcomeUser">🤸‍♂️ Welcome to EX Tracker</h1>
+  <h1 id="welcomeUser">🤸‍♂️ Welcome to EX Tracker</h1>
 
-<label for="userSelector">Select Your Name:</label>
-<select id="userSelector">
-  <option value="">-- Choose User --</option>
-  <option value="sam_kaplan">Sam Kaplan</option>
-  <option value="tate_costa">Tate Costa</option>
-  <option value="samuel_phillips">Samuel Phillips</option>
-  <option value="logan_myers">Logan Myers</option>
-  <option value="ryan_van">Ryan Van</option>
-  <option value="connor_micklos">Connor Micklos</option>
-  <option value="vahe_petrosyan">Vahe Petrosyan</option>
-  <option value="preston_ngai">Preston Ngai</option>
-  <option value="dylan_sheppard">Dylan Sheppard</option>
-  <option value="garrett_schooley">Garrett Schooley</option>
-  <option value="brandon_dang">Brandon Dang</option>
-  <option value="ian_sandoval">Ian Sandoval</option>
-  <option value="jax_washburn">Jax Washburn</option>
-  <option value="nathan_whitaker">Nathan Whitaker</option>
-  <option value="matthew_ngyuen">Matthew Ngyuen</option>
-  <option value="hasan_ayudogu">Hasan Ayudogu</option>
-  <option value="gavin_doherty">Gavin Doherty</option>
-  <option value="alex_karadzov">Alex Karadzov</option>
-</select>
+  <label for="userSelector">Select Your Name:</label>
+  <select id="userSelector">
+    <option value="">-- Choose User --</option>
+    <option value="sam_kaplan">Sam Kaplan</option>
+    <option value="tate_costa">Tate Costa</option>
+    <option value="samuel_phillips">Samuel Phillips</option>
+    <option value="logan_myers">Logan Myers</option>
+    <option value="ryan_van">Ryan Van</option>
+    <option value="connor_micklos">Connor Micklos</option>
+    <option value="vahe_petrosyan">Vahe Petrosyan</option>
+    <option value="preston_ngai">Preston Ngai</option>
+    <option value="dylan_sheppard">Dylan Sheppard</option>
+    <option value="garrett_schooley">Garrett Schooley</option>
+    <option value="brandon_dang">Brandon Dang</option>
+    <option value="ian_sandoval">Ian Sandoval</option>
+    <option value="jax_washburn">Jax Washburn</option>
+    <option value="nathan_whitaker">Nathan Whitaker</option>
+    <option value="matthew_ngyuen">Matthew Ngyuen</option>
+    <option value="hasan_ayudogu">Hasan Ayudogu</option>
+    <option value="gavin_doherty">Gavin Doherty</option>
+    <option value="alex_karadzov">Alex Karadzov</option>
+  </select>
 
+  <p>This is your landing hub. From here, you can navigate to your dashboard, manage events, or explore new features.</p>
 
+  <div>
+    <button onclick="goToInputSets()">Edit My Routines</button>
+    <button onclick="goToDashboard()">Go to Dashboard</button>
+  </div>
 
-<p>This is your landing hub. From here, you can navigate to your dashboard, manage events, or explore new features.</p>
+  <!-- ✅ Firebase + Navigation Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-<div style="margin-top: 1rem;">
-  <button onclick="goToInputSets()">Edit My Routines</button>
-  <button onclick="goToDashboard()">Go to Dashboard</button>
-</div>
- <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+    const firebaseConfig = {
+      apiKey: "AIzaSyBEvPhZMwiIvrNp3aGJYwJaRxIbUsFAexA",
+      authDomain: "extracker2-6ee45.firebaseapp.com",
+      projectId: "extracker2-6ee45",
+      storageBucket: "extracker2-6ee45.firebasestorage.app",
+      messagingSenderId: "353228863394",
+      appId: "1:353228863394:web:56640ef8429be3dbd564fb",
+      measurementId: "G-BB724PSCVT"
+    };
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBEvPhZMwiIvrNp3aGJYwJaRxIbUsFAexA",
-  authDomain: "extracker2-6ee45.firebaseapp.com",
-  projectId: "extracker2-6ee45",
-  storageBucket: "extracker2-6ee45.firebasestorage.app",
-  messagingSenderId: "353228863394",
-  appId: "1:353228863394:web:56640ef8429be3dbd564fb",
-  measurementId: "G-BB724PSCVT"
-};
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+    window.addEventListener("DOMContentLoaded", () => {
+      const selector = document.getElementById("userSelector");
+      const editBtn = document.querySelector("button[onclick='goToInputSets()']");
+      const dashBtn = document.querySelector("button[onclick='goToDashboard()']");
+      const welcomeEl = document.getElementById("welcomeUser");
 
-  
+      editBtn.disabled = true;
+      dashBtn.disabled = true;
 
- window.addEventListener("DOMContentLoaded", () => {
-  const selector = document.getElementById("userSelector");
-  const editBtn = document.querySelector("button[onclick='goToInputSets()']");
-  const dashBtn = document.querySelector("button[onclick='goToDashboard()']");
+      selector.addEventListener("change", () => {
+        const hasUser = selector.value !== "";
+        editBtn.disabled = !hasUser;
+        dashBtn.disabled = !hasUser;
+        if (hasUser) {
+          welcomeEl.textContent = `🤸‍♂️ Welcome, ${selector.options[selector.selectedIndex].text}`;
+        }
+      });
 
-  selector.addEventListener("change", () => {
-    const hasUser = selector.value !== "";
-    editBtn.disabled = !hasUser;
-    dashBtn.disabled = !hasUser;
-  });
+      window.getSelectedUser = function () {
+        const selectedUser = selector.value;
+        if (!selectedUser) {
+          alert("Please select your name first.");
+          return null;
+        }
+        localStorage.setItem("activeUserId", selectedUser);
+        return selectedUser;
+      };
 
-  // Disable buttons on initial load
-  editBtn.disabled = true;
-  dashBtn.disabled = true;
-
-  window.getSelectedUser = function () {
-    const selectedUser = selector.value;
-    if (!selectedUser) {
-      alert("Please select your name first.");
-      return null;
-    }
-    localStorage.setItem("activeUserId", selectedUser);
-    return selectedUser;
-  };
-
-  window.goToInputSets = async function () {
-    const user = getSelectedUser();
-    if (user) {
-      await preloadUserData(user);
-      window.location.href = "inputsets.html";
-    }
-  };
-
-  window.goToDashboard = async function () {
-    const user = getSelectedUser();
-    if (user) {
-      await preloadUserData(user);
-      window.location.href = "dashboardv2.html";
-    }
-  };
-
-  async function preloadUserData(userId) {
-    try {
-      const docRef = doc(db, "inputSets", userId);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        localStorage.setItem("skillSets_" + userId, JSON.stringify(docSnap.data()));
+      async function preloadUserData(userId) {
+        try {
+          const docRef = doc(db, "inputSets", userId);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            localStorage.setItem("skillSets_" + userId, JSON.stringify(docSnap.data()));
+          }
+        } catch (error) {
+          console.error("Error loading user data:", error);
+        }
       }
-    } catch (error) {
-      console.error("Error loading user data:", error);
-    }
-  }
-});
 
+      window.goToInputSets = async function () {
+        const user = getSelectedUser();
+        if (user) {
+          await preloadUserData(user);
+          window.location.href = "inputsets.html";
+        }
+      };
 
-
-</script>
+      window.goToDashboard = async function () {
+        const user = getSelectedUser();
+        if (user) {
+          await preloadUserData(user);
+          window.location.href = "dashboard.html";
+        }
+      };
+    });
+  </script>
 </body>
-
-
 </html>
