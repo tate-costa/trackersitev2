@@ -72,15 +72,15 @@
   import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
   window.addEventListener("DOMContentLoaded", () => {
-    const firebaseConfig = {
-      apiKey: "AIzaSyBEvPhZMwiIvrNp3aGJYwJaRxIbUsFAexA",
-      authDomain: "extracker2-6ee45.firebaseapp.com",
-      projectId: "extracker2-6ee45",
-      storageBucket: "extracker2-6ee45.firebasestorage.app",
-      messagingSenderId: "353228863394",
-      appId: "1:353228863394:web:56640ef8429be3dbd564fb",
-      measurementId: "G-BB724PSCVT"
-    };
+const firebaseConfig = {
+  apiKey: "AIzaSyBEvPhZMwiIvrNp3aGJYwJaRxIbUsFAexA",
+  authDomain: "extracker2-6ee45.firebaseapp.com",
+  projectId: "extracker2-6ee45",
+  storageBucket: "extracker2-6ee45.firebasestorage.app",
+  messagingSenderId: "353228863394",
+  appId: "1:353228863394:web:56640ef8429be3dbd564fb",
+  measurementId: "G-BB724PSCVT"
+};
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
