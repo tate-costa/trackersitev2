@@ -60,7 +60,11 @@
 <body>
   <h2>Set Your Skills for Each Event</h2>
   <div id="eventsContainer"></div>
-  <button onclick="saveSkillSets()">Save & Go to Dashboard</button>
+<div style="margin-top: 1rem;">
+  <button onclick="saveSkillSets()">💾 Save</button>
+  <button onclick="saveAndGoToDashboard()">📊 Go to Dashboard</button>
+</div>
+
 
   <!-- ✅ Script moved to end of body -->
   <script type="module">
@@ -189,36 +193,45 @@
     preloadSkills();
 
     // Save to Firebase
-    window.saveSkillSets = async function () {
-      const skillData = {};
+window.saveSkillSets = async function (redirect = false) {
+  const skillData = {};
 
-      document.querySelectorAll(".event-block").forEach(block => {
-        const event = block.dataset.event;
-        const skip = block.querySelector(".skip-event")?.checked;
-        if (skip) return;
+  document.querySelectorAll(".event-block").forEach(block => {
+    const event = block.dataset.event;
+    const skip = block.querySelector(".skip-event")?.checked;
+    if (skip) return;
 
-        const names = block.querySelectorAll(".skill-name");
-        const values = block.querySelectorAll(".skill-value");
+    const names = block.querySelectorAll(".skill-name");
+    const values = block.querySelectorAll(".skill-value");
 
-        skillData[event] = [];
+    skillData[event] = [];
 
-        for (let i = 0; i < names.length; i++) {
-          const name = names[i].value.trim();
-          const value = parseFloat(values[i].value);
-          if (name && !isNaN(value)) {
-            skillData[event].push({ skill: name, value });
-          }
-        }
-      });
-
-      try {
-        await setDoc(doc(db, "inputSets", activeUserId), skillData);
-        window.location.href = "dashboardv2.html";
-      } catch (error) {
-        console.error("Error saving skill sets:", error);
-        alert("Failed to save. Please try again.");
+    for (let i = 0; i < names.length; i++) {
+      const name = names[i].value.trim();
+      const value = parseFloat(values[i].value);
+      if (name && !isNaN(value)) {
+        skillData[event].push({ skill: name, value });
       }
-    };
+    }
+  });
+
+  try {
+    await setDoc(doc(db, "inputSets", activeUserId), skillData);
+    if (redirect) {
+      window.location.href = "dashboardv2.html";
+    } else {
+      alert("Skills saved successfully!");
+    }
+  } catch (error) {
+    console.error("Error saving skill sets:", error);
+    alert("Failed to save. Please try again.");
+  }
+};
+
+  window.saveAndGoToDashboard = async function () {
+  await saveSkillSets(true); // pass true to trigger redirect
+};
+
   </script>
 </body>
 </html>
