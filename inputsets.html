@@ -67,10 +67,11 @@
 
 
   <!-- ✅ Script moved to end of body -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
+  window.addEventListener("DOMContentLoaded", () => {
     const firebaseConfig = {
       apiKey: "AIzaSyBEvPhZMwiIvrNp3aGJYwJaRxIbUsFAexA",
       authDomain: "extracker2-6ee45.firebaseapp.com",
@@ -94,7 +95,6 @@
     const container = document.getElementById("eventsContainer");
     const skillBlocks = {};
 
-    // Build UI
     events.forEach(event => {
       const block = document.createElement("div");
       block.className = "event-block";
@@ -165,7 +165,6 @@
       return wrapper;
     }
 
-    // Load saved skills
     async function preloadSkills() {
       try {
         const docRef = doc(db, "inputSets", activeUserId);
@@ -192,46 +191,46 @@
 
     preloadSkills();
 
-    // Save to Firebase
-window.saveSkillSets = async function (redirect = false) {
-  const skillData = {};
+    window.saveSkillSets = async function (redirect = false) {
+      const skillData = {};
 
-  document.querySelectorAll(".event-block").forEach(block => {
-    const event = block.dataset.event;
-    const skip = block.querySelector(".skip-event")?.checked;
-    if (skip) return;
+      document.querySelectorAll(".event-block").forEach(block => {
+        const event = block.dataset.event;
+        const skip = block.querySelector(".skip-event")?.checked;
+        if (skip) return;
 
-    const names = block.querySelectorAll(".skill-name");
-    const values = block.querySelectorAll(".skill-value");
+        const names = block.querySelectorAll(".skill-name");
+        const values = block.querySelectorAll(".skill-value");
 
-    skillData[event] = [];
+        skillData[event] = [];
 
-    for (let i = 0; i < names.length; i++) {
-      const name = names[i].value.trim();
-      const value = parseFloat(values[i].value);
-      if (name && !isNaN(value)) {
-        skillData[event].push({ skill: name, value });
+        for (let i = 0; i < names.length; i++) {
+          const name = names[i].value.trim();
+          const value = parseFloat(values[i].value);
+          if (name && !isNaN(value)) {
+            skillData[event].push({ skill: name, value });
+          }
+        }
+      });
+
+      try {
+        await setDoc(doc(db, "inputSets", activeUserId), skillData);
+        if (redirect) {
+          window.location.href = "dashboardv2.html";
+        } else {
+          alert("Skills saved successfully!");
+        }
+      } catch (error) {
+        console.error("Error saving skill sets:", error);
+        alert("Failed to save. Please try again.");
       }
-    }
+    };
+
+    window.saveAndGoToDashboard = async function () {
+      await window.saveSkillSets(true);
+    };
   });
+</script>
 
-  try {
-    await setDoc(doc(db, "inputSets", activeUserId), skillData);
-    if (redirect) {
-      window.location.href = "dashboardv2.html";
-    } else {
-      alert("Skills saved successfully!");
-    }
-  } catch (error) {
-    console.error("Error saving skill sets:", error);
-    alert("Failed to save. Please try again.");
-  }
-};
-
-  window.saveAndGoToDashboard = async function () {
-  await saveSkillSets(true); // pass true to trigger redirect
-};
-
-  </script>
 </body>
 </html>
