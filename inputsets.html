@@ -1,7 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script type="module">
+  
+
+  <meta charset="UTF-8" />
+  <title>Set Your Skills</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 2rem;
+      background-color: #f9f9fb;
+      color: #333;
+    }
+    h2 {
+      color: #0077cc;
+    }
+    .event-block {
+      margin-bottom: 1.5rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .event-header {
+      background-color: #eee;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      font-weight: bold;
+      color: #0077cc;
+    }
+    .event-header:hover {
+      background-color: #ddd;
+    }
+    .skill-set {
+      display: none;
+      padding: 1rem;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+    input[type="text"], input[type="number"] {
+      padding: 0.5rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 100%;
+    }
+    button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    button:hover {
+      background-color: #005fa3;
+    }
+  </style>
+</head>
+<body>
+  <h2>Set Your Skills for Each Event</h2>
+  <div id="eventsContainer"></div>
+  <button onclick="saveSkillSets()">Save & Go to Dashboard</button>
+<script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
   import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
@@ -216,68 +278,6 @@ document.querySelectorAll(".event-block").forEach(block => {
     }
   };
 </script>
-
-  <meta charset="UTF-8" />
-  <title>Set Your Skills</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      padding: 2rem;
-      background-color: #f9f9fb;
-      color: #333;
-    }
-    h2 {
-      color: #0077cc;
-    }
-    .event-block {
-      margin-bottom: 1.5rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .event-header {
-      background-color: #eee;
-      padding: 0.75rem 1rem;
-      cursor: pointer;
-      font-weight: bold;
-      color: #0077cc;
-    }
-    .event-header:hover {
-      background-color: #ddd;
-    }
-    .skill-set {
-      display: none;
-      padding: 1rem;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.5rem;
-    }
-    input[type="text"], input[type="number"] {
-      padding: 0.5rem;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      width: 100%;
-    }
-    button {
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      background-color: #0077cc;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-top: 1rem;
-    }
-    button:hover {
-      background-color: #005fa3;
-    }
-  </style>
-</head>
-<body>
-  <h2>Set Your Skills for Each Event</h2>
-  <div id="eventsContainer"></div>
-  <button onclick="saveSkillSets()">Save & Go to Dashboard</button>
-
   
 </body>
 </html>
