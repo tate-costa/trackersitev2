@@ -84,8 +84,17 @@
 
   <p>This is your landing hub. From here, you can navigate to your dashboard, manage events, or explore new features.</p>
 
+  <button id="editBtn" style="display:none;">✏️ Edit My Routines</button>
+
+<div id="editContainer" style="display:none; width:100%; max-width:800px;">
+  <h2>Edit My Routines</h2>
+  <div id="eventsContainer"></div>
+  <div id="saveMessage" style="margin-top:1rem; color:green; font-weight:bold;"></div>
+  <button onclick="saveSkillSets()">💾 Save Routines</button>
+</div>
+
+
   <div>
-    <button onclick="goToInputSets()">Edit My Routines</button>
     <button onclick="goToDashboard()">Go to Dashboard</button>
   </div>
 
@@ -116,14 +125,20 @@
       editBtn.disabled = true;
       dashBtn.disabled = true;
 
-      selector.addEventListener("change", () => {
-        const hasUser = selector.value !== "";
-        editBtn.disabled = !hasUser;
-        dashBtn.disabled = !hasUser;
-        if (hasUser) {
-          welcomeEl.textContent = `🤸‍♂️ Welcome, ${selector.options[selector.selectedIndex].text}`;
-        }
-      });
+  selector.addEventListener("change", () => {
+  const hasUser = selector.value !== "";
+  editBtn.style.display = hasUser ? "inline-block" : "none";
+  dashBtn.disabled = !hasUser;
+  if (hasUser) {
+    welcomeEl.textContent = `🤸‍♂️ Welcome, ${selector.options[selector.selectedIndex].text}`;
+  }
+});
+      editBtn.addEventListener("click", () => {
+  document.getElementById("editContainer").style.display = "block";
+  buildEventEditor(); // dynamically build the event blocks
+});
+
+
 
       window.getSelectedUser = function () {
         const selectedUser = selector.value;
@@ -162,6 +177,121 @@ window.goToDashboard = function () {
 };
 
     });
+    const events = ["FX", "PH", "SR", "PB", "HB", "VT"];
+const container = document.getElementById("eventsContainer");
+const skillBlocks = {};
+
+events.forEach(event => {
+  const block = document.createElement("div");
+  block.className = "event-block";
+  block.dataset.event = event;
+
+  const header = document.createElement("div");
+  header.className = "event-header";
+  header.textContent = event;
+  block.appendChild(header);
+
+  const skipToggle = document.createElement("label");
+  skipToggle.style.display = "block";
+  skipToggle.style.margin = "0.5rem 1rem";
+  skipToggle.innerHTML = `
+    <input type="checkbox" class="skip-event" />
+    I don’t do this event
+  `;
+  block.appendChild(skipToggle);
+
+  const skillSet = document.createElement("div");
+  skillSet.className = "skill-set";
+  block.appendChild(skillSet);
+
+  const checkbox = skipToggle.querySelector("input");
+  checkbox.addEventListener("change", () => {
+    const disabled = checkbox.checked;
+    skillSet.querySelectorAll("input").forEach(input => {
+      input.disabled = disabled;
+    });
+  });
+
+  header.addEventListener("click", () => {
+    skillSet.style.display = skillSet.style.display === "grid" ? "none" : "grid";
+    skillSet.style.gridTemplateColumns = "1fr 1fr";
+  });
+
+  if (event === "VT") {
+    ["VT 1", "VT 2"].forEach(label => {
+      skillSet.appendChild(createSkillRow(label));
+    });
+  } else {
+    for (let i = 0; i < 7; i++) {
+      skillSet.appendChild(createSkillRow(`Skill ${i + 1}`));
+    }
+    skillSet.appendChild(createSkillRow("Dismount"));
+    skillSet.appendChild(createSkillRow("Upgrade 1"));
+    skillSet.appendChild(createSkillRow("Upgrade 2"));
+  }
+
+  container.appendChild(block);
+  skillBlocks[event] = skillSet;
+});
+
+function createSkillRow(label) {
+  const skillInput = document.createElement("input");
+  skillInput.type = "text";
+  skillInput.placeholder = label;
+  skillInput.className = "skill-name";
+
+  const valueInput = document.createElement("input");
+  valueInput.type = "number";
+  valueInput.placeholder = `Value for ${label}`;
+  valueInput.className = "skill-value";
+
+  const wrapper = document.createElement("div");
+  wrapper.appendChild(skillInput);
+  wrapper.appendChild(valueInput);
+  return wrapper;
+}
+
+window.saveSkillSets = async function () {
+  const userId = localStorage.getItem("activeUserId");
+  if (!userId) {
+    alert("No user selected.");
+    return;
+  }
+
+  const skillData = {};
+
+  document.querySelectorAll(".event-block").forEach(block => {
+    const event = block.dataset.event;
+    const skip = block.querySelector(".skip-event")?.checked;
+    if (skip) return;
+
+    const names = block.querySelectorAll(".skill-name");
+    const values = block.querySelectorAll(".skill-value");
+
+    skillData[event] = [];
+
+    for (let i = 0; i < names.length; i++) {
+      const name = names[i].value.trim();
+      const value = parseFloat(values[i].value);
+      if (name && !isNaN(value)) {
+        skillData[event].push({ skill: name, value });
+      }
+    }
+  });
+
+  try {
+    await setDoc(doc(db, "inputSets", userId), skillData);
+    const msg = document.getElementById("saveMessage");
+    msg.textContent = "✅ Skills saved successfully!";
+    setTimeout(() => {
+      msg.textContent = "";
+    }, 3000);
+  } catch (error) {
+    console.error("Error saving skill sets:", error);
+    alert("Failed to save. Please try again.");
+  }
+};
+
   </script>
 </body>
 </html>
