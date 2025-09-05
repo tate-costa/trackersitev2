@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gymnastics Routine Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .user-selection {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .user-selection h2 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+
+        select {
+            padding: 12px 20px;
+            font-size: 16px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            background: white;
+            min-width: 250px;
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .event-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .event-card {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .event-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .event-header {
+            background: #667eea;
+            color: white;
+            padding: 15px 20px;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .event-content {
+            padding: 20px;
+            display: none;
+        }
+
+        .event-content.expanded {
+            display: block;
+        }
+
+        .skill-input-group {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .skill-input-group input {
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .skill-input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .submission-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .submission-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .submission-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .submission-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .deduction-input {
+            width: 80px;
+            padding: 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .score-summary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .score-item {
+            display: inline-block;
+            margin: 0 20px;
+            font-size: 18px;
+        }
+
+        .score-value {
+            font-weight: bold;
+            font-size: 24px;
+            display: block;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .debug {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .event-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .score-item {
+                display: block;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤸‍♂️ Gymnastics Routine Tracker</h1>
+            <p>Track skills, values, and deductions for all gymnasts</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Debug info -->
+            <div id="debugInfo" class="debug">
+                Debug: Page loaded, waiting for user selection...
+            </div>
+
+            <!-- User Selection -->
+            <div class="user-selection">
+                <h2>Select Gymnast</h2>
+                <select id="userSelect">
+                    <option value="">-- Choose Gymnast --</option>
+                    <option value="sam_kaplan">Sam Kaplan</option>
+                    <option value="tate_costa">Tate Costa</option>
+                    <option value="samuel_phillips">Samuel Phillips</option>
+                    <option value="logan_myers">Logan Myers</option>
+                    <option value="ryan_van">Ryan Van</option>
+                    <option value="connor_micklos">Connor Micklos</option>
+                    <option value="vahe_petrosyan">Vahe Petrosyan</option>
+                    <option value="preston_ngai">Preston Ngai</option>
+                    <option value="dylan_sheppard">Dylan Sheppard</option>
+                    <option value="garrett_schooley">Garrett Schooley</option>
+                    <option value="brandon_dang">Brandon Dang</option>
+                    <option value="ian_sandoval">Ian Sandoval</option>
+                    <option value="jax_washburn">Jax Washburn</option>
+                    <option value="nathan_whitaker">Nathan Whitaker</option>
+                    <option value="matthew_ngyuen">Matthew Ngyuen</option>
+                    <option value="hasan_ayudogu">Hasan Ayudogu</option>
+                    <option value="gavin_doherty">Gavin Doherty</option>
+                    <option value="alex_karadzov">Alex Karadzov</option>
+                </select>
+            </div>
+
+            <div id="userContent" style="display: none;">
+                <!-- Tab Navigation -->
+                <div class="tabs">
+                    <button class="tab active" onclick="showTab('routines')">📝 Edit Routines</button>
+                    <button class="tab" onclick="showTab('submission')">📊 Submit Scores</button>
+                </div>
+
+                <!-- Edit Routines Tab -->
+                <div id="routines-tab" class="tab-content active">
+                    <div class="event-grid" id="eventGrid">
+                        <!-- Events will be populated here -->
+                    </div>
+                    <div style="text-align: center;">
+                        <button class="btn btn-success" onclick="saveAllRoutines()">💾 Save All Routines</button>
+                    </div>
+                </div>
+
+                <!-- Submit Scores Tab -->
+                <div id="submission-tab" class="tab-content">
+                    <div style="margin-bottom: 20px;">
+                        <label for="submissionEvent">Select Event for Scoring:</label>
+                        <select id="submissionEvent" onchange="loadSubmissionEvent()">
+                            <option value="">-- Choose Event --</option>
+                            <option value="FX">Floor Exercise (FX)</option>
+                            <option value="PH">Pommel Horse (PH)</option>
+                            <option value="SR">Still Rings (SR)</option>
+                            <option value="VT">Vault (VT)</option>
+                            <option value="PB">Parallel Bars (PB)</option>
+                            <option value="HB">High Bar (HB)</option>
+                        </select>
+                    </div>
+
+                    <div id="submissionContent">
+                        <div class="no-data">
+                            Please select an event to begin scoring
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="message" id="messageDiv"></div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentUser = null;
+        let userData = {};
+        let submissionData = {};
+
+        const events = [
+            { code: 'FX', name: 'Floor Exercise', skills: 8 },
+            { code: 'PH', name: 'Pommel Horse', skills: 8 },
+            { code: 'SR', name: 'Still Rings', skills: 8 },
+            { code: 'VT', name: 'Vault', skills: 2 },
+            { code: 'PB', name: 'Parallel Bars', skills: 8 },
+            { code: 'HB', name: 'High Bar', skills: 8 }
+        ];
+
+        function updateDebug(message) {
+            const debugDiv = document.getElementById('debugInfo');
+            if (debugDiv) {
+                debugDiv.innerHTML = 'Debug: ' + message;
+            }
+            console.log('Debug:', message);
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', function() {
+            updateDebug('Page fully loaded, setting up event listeners...');
+            
+            const userSelect = document.getElementById('userSelect');
+            if (!userSelect) {
+                updateDebug('ERROR: User select element not found!');
+                return;
+            }
+            
+            updateDebug('User select found, adding change listener...');
+            
+            userSelect.addEventListener('change', function() {
+                const selectedValue = this.value;
+                updateDebug('User selected: ' + selectedValue);
+                
+                currentUser = selectedValue;
+                
+                if (currentUser) {
+                    updateDebug('Loading user data for: ' + currentUser);
+                    loadUserData();
+                    
+                    const userContent = document.getElementById('userContent');
+                    if (userContent) {
+                        userContent.style.display = 'block';
+                        updateDebug('User content shown');
+                    } else {
+                        updateDebug('ERROR: User content element not found!');
+                    }
+                } else {
+                    updateDebug('No user selected, hiding content');
+                    const userContent = document.getElementById('userContent');
+                    if (userContent) {
+                        userContent.style.display = 'none';
+                    }
+                }
+            });
+
+            // Create event cards
+            createEventCards();
+            updateDebug('Setup complete, ready for user selection');
+        });
+
+        // Create event cards for routine editing
+        function createEventCards() {
+            updateDebug('Creating event cards...');
+            const eventGrid = document.getElementById('eventGrid');
+            if (!eventGrid) {
+                updateDebug('ERROR: Event grid not found');
+                return;
+            }
+            
+            eventGrid.innerHTML = '';
+
+            events.forEach(event => {
+                const card = document.createElement('div');
+                card.className = 'event-card';
+                card.innerHTML = `
+                    <div class="event-header" onclick="toggleEvent('${event.code}')">
+                        <span>${event.name} (${event.code})</span>
+                        <span>▼</span>
+                    </div>
+                    <div id="event-${event.code}" class="event-content">
+                        <div id="skills-${event.code}"></div>
+                    </div>
+                `;
+                eventGrid.appendChild(card);
+                createSkillInputs(event.code, event.skills);
+            });
+            
+            updateDebug('Event cards created successfully');
+        }
+
+        // Create skill input fields
+        function createSkillInputs(eventCode, skillCount) {
+            const container = document.getElementById(`skills-${eventCode}`);
+            if (!container) {
+                updateDebug('ERROR: Skills container not found for ' + eventCode);
+                return;
+            }
+            
+            container.innerHTML = '';
+
+            for (let i = 1; i <= skillCount; i++) {
+                const skillDiv = document.createElement('div');
+                skillDiv.className = 'skill-input-group';
+                
+                const skillName = eventCode === 'VT' ? `Vault ${i}` : `Skill ${i}`;
+                
+                skillDiv.innerHTML = `
+                    <input type="text" placeholder="${skillName} name" id="skill-name-${eventCode}-${i}">
+                    <input type="number" step="0.1" min="0" placeholder="Value" id="skill-value-${eventCode}-${i}">
+                `;
+                container.appendChild(skillDiv);
+            }
+        }
+
+        // Toggle event card expansion
+        function toggleEvent(eventCode) {
+            updateDebug('Toggling event: ' + eventCode);
+            const content = document.getElementById(`event-${eventCode}`);
+            const header = content.previousElementSibling.querySelector('span:last-child');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                header.textContent = '▼';
+            } else {
+                content.classList.add('expanded');
+                header.textContent = '▲';
+            }
+        }
+
+        // Load user data (using localStorage for now)
+        function loadUserData() {
+            updateDebug('Loading data for user: ' + currentUser);
+            
+            // Load from localStorage
+            const savedData = localStorage.getItem('gymnast_' + currentUser);
+            if (savedData) {
+                userData = JSON.parse(savedData);
+                updateDebug('Found saved data for user');
+                populateRoutineData();
+            } else {
+                userData = {};
+                updateDebug('No saved data found, starting fresh');
+            }
+
+            const savedSubmissions = localStorage.getItem('submissions_' + currentUser);
+            if (savedSubmissions) {
+                submissionData = JSON.parse(savedSubmissions);
+                updateDebug('Found saved submissions');
+            } else {
+                submissionData = {};
+                updateDebug('No saved submissions found');
+            }
+
+            showMessage('User data loaded successfully!', 'success');
+        }
+
+        // Populate routine data into form
+        function populateRoutineData() {
+            updateDebug('Populating routine data...');
+            events.forEach(event => {
+                if (userData[event.code]) {
+                    userData[event.code].forEach((skill, index) => {
+                        const nameInput = document.getElementById(`skill-name-${event.code}-${index + 1}`);
+                        const valueInput = document.getElementById(`skill-value-${event.code}-${index + 1}`);
+                        
+                        if (nameInput) nameInput.value = skill.name || '';
+                        if (valueInput) valueInput.value = skill.value || '';
+                    });
+                }
+            });
+            updateDebug('Routine data populated');
+        }
+
+        // Save all routines
+        function saveAllRoutines() {
+            updateDebug('Saving all routines...');
+            const routineData = {};
+
+            events.forEach(event => {
+                const skills = [];
+                for (let i = 1; i <= event.skills; i++) {
+                    const nameInput = document.getElementById(`skill-name-${event.code}-${i}`);
+                    const valueInput = document.getElementById(`skill-value-${event.code}-${i}`);
+                    
+                    const name = nameInput?.value.trim() || '';
+                    const value = parseFloat(valueInput?.value) || 0;
+                    
+                    if (name && value > 0) {
+                        skills.push({ name, value });
+                    }
+                }
+                
+                if (skills.length > 0) {
+                    routineData[event.code] = skills;
+                }
+            });
+
+            // Save to localStorage
+            localStorage.setItem('gymnast_' + currentUser, JSON.stringify(routineData));
+            userData = routineData;
+            
+            updateDebug('Routines saved to localStorage');
+            showMessage('All routines saved successfully!', 'success');
+        }
+
+        // Tab switching
+        function showTab(tabName) {
+            updateDebug('Switching to tab: ' + tabName);
+            
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        // Load submission event
+        function loadSubmissionEvent() {
+            const eventCode = document.getElementById('submissionEvent').value;
+            const container = document.getElementById('submissionContent');
+            
+            updateDebug('Loading submission event: ' + eventCode);
+            
+            if (!eventCode || !userData[eventCode] || userData[eventCode].length === 0) {
+                container.innerHTML = `
+                    <div class="no-data">
+                        ${eventCode ? 'No skills found for this event. Please add skills in the "Edit Routines" tab first.' : 'Please select an event to begin scoring'}
+                    </div>
+                `;
+                return;
+            }
+
+            const skills = userData[eventCode];
+            let tableHTML = `
+                <table class="submission-table">
+                    <thead>
+                        <tr>
+                            <th>Skill Name</th>
+                            <th>Base Value</th>
+                            <th>Deduction</th>
+                            <th>Final Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            skills.forEach((skill, index) => {
+                const previousDeduction = getPreviousDeduction(eventCode, index);
+                tableHTML += `
+                    <tr>
+                        <td>${skill.name}</td>
+                        <td>${skill.value.toFixed(1)}</td>
+                        <td><input type="number" step="0.1" min="0" max="${skill.value}" 
+                                   value="${previousDeduction}" 
+                                   class="deduction-input" 
+                                   onchange="calculateFinalScore(${index}, ${skill.value}, this.value)"></td>
+                        <td id="final-score-${index}">${(skill.value - previousDeduction).toFixed(1)}</td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                    </tbody>
+                </table>
+                <div class="score-summary">
+                    <div class="score-item">
+                        <span class="score-value" id="totalValue">${skills.reduce((sum, skill) => sum + skill.value, 0).toFixed(1)}</span>
+                        Total Value
+                    </div>
+                    <div class="score-item">
+                        <span class="score-value" id="totalDeductions">0.0</span>
+                        Total Deductions
+                    </div>
+                    <div class="score-item">
+                        <span class="score-value" id="finalTotal">${skills.reduce((sum, skill) => sum + skill.value, 0).toFixed(1)}</span>
+                        Final Score
+                    </div>
+                </div>
+                <div style="text-align: center;">
+                    <button class="btn btn-success" onclick="submitScores()">📊 Submit Scores</button>
+                    <button class="btn btn-secondary" onclick="clearDeductions()">🗑️ Clear All</button>
+                </div>
+            `;
+
+            container.innerHTML = tableHTML;
+            updateTotals();
+            updateDebug('Submission event loaded successfully');
+        }
+
+        // Get previous deduction for autofill
+        function getPreviousDeduction(eventCode, skillIndex) {
+            if (submissionData[eventCode] && submissionData[eventCode].length > 0) {
+                const lastSubmission = submissionData[eventCode][submissionData[eventCode].length - 1];
+                if (lastSubmission.skills && lastSubmission.skills[skillIndex]) {
+                    return lastSubmission.skills[skillIndex].deduction || 0;
+                }
+            }
+            return 0;
+        }
+
+        // Calculate final score for individual skill
+        function calculateFinalScore(index, baseValue, deduction) {
+            const deductionValue = parseFloat(deduction) || 0;
+            const finalScore = Math.max(0, baseValue - deductionValue);
+            document.getElementById(`final-score-${index}`).textContent = finalScore.toFixed(1);
+            updateTotals();
+        }
+
+        // Update total scores
+        function updateTotals() {
+            const eventCode = document.getElementById('submissionEvent').value;
+            if (!eventCode || !userData[eventCode]) return;
+
+            const skills = userData[eventCode];
+            const deductionInputs = document.querySelectorAll('.deduction-input');
+            
+            let totalValue = 0;
+            let totalDeductions = 0;
+            
+            skills.forEach((skill, index) => {
+                totalValue += skill.value;
+                const deduction = parseFloat(deductionInputs[index]?.value) || 0;
+                totalDeductions += deduction;
+            });
+
+            const finalTotal = Math.max(0, totalValue - totalDeductions);
+
+            document.getElementById('totalValue').textContent = totalValue.toFixed(1);
+            document.getElementById('totalDeductions').textContent = totalDeductions.toFixed(1);
+            document.getElementById('finalTotal').textContent = finalTotal.toFixed(1);
+        }
+
+        // Submit scores
+        function submitScores() {
+            const eventCode = document.getElementById('submissionEvent').value;
+            if (!eventCode) return;
+
+            updateDebug('Submitting scores for: ' + eventCode);
+
+            const skills = userData[eventCode];
+            const deductionInputs = document.querySelectorAll('.deduction-input');
+            
+            const submissionSkills = [];
+            let totalValue = 0;
+            let totalDeductions = 0;
+
+            skills.forEach((skill, index) => {
+                const deduction = parseFloat(deductionInputs[index]?.value) || 0;
+                const finalScore = Math.max(0, skill.value - deduction);
+                
+                submissionSkills.push({
+                    name: skill.name,
+                    value: skill.value,
+                    deduction: deduction,
+                    finalScore: finalScore
+                });
+                
+                totalValue += skill.value;
+                totalDeductions += deduction;
+            });
+
+            const submission = {
+                event: eventCode,
+                skills: submissionSkills,
+                totalValue: totalValue,
+                totalDeductions: totalDeductions,
+                finalScore: Math.max(0, totalValue - totalDeductions),
+                timestamp: new Date().toISOString()
+            };
+
+            if (!submissionData[eventCode]) {
+                submissionData[eventCode] = [];
+            }
+            
+            submissionData[eventCode].push(submission);
+
+            // Keep only last 20 submissions per event
+            if (submissionData[eventCode].length > 20) {
+                submissionData[eventCode] = submissionData[eventCode].slice(-20);
+            }
+
+            // Save to localStorage
+            localStorage.setItem('submissions_' + currentUser, JSON.stringify(submissionData));
+            
+            updateDebug('Scores submitted and saved');
+            showMessage(`Scores submitted for ${eventCode}! Final Score: ${submission.finalScore.toFixed(1)}`, 'success');
+        }
+
+        // Clear all deductions
+        function clearDeductions() {
+            const deductionInputs = document.querySelectorAll('.deduction-input');
+            deductionInputs.forEach(input => {
+                input.value = '0';
+                const index = Array.from(deductionInputs).indexOf(input);
+                const eventCode = document.getElementById('submissionEvent').value;
+                if (userData[eventCode] && userData[eventCode][index]) {
+                    calculateFinalScore(index, userData[eventCode][index].value, 0);
+                }
+            });
+            updateDebug('All deductions cleared');
+        }
+
+        // Message handling
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('messageDiv');
+            messageDiv.textContent = message;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
